@@ -1,7 +1,7 @@
 {
     "$schema": "https://neleto.io/schemas/main/plugin_manifest_schema.json",
     "name": "google-reviews",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "bin": "./target/x86_64-unknown-linux-gnu/release/google-reviews",
     "include_files": [
         "ui/dist/**/*",
@@ -17,14 +17,14 @@
             "route": "/helper/google_reviews",
             "type": "inline",
             "return_value": "String",
-            "arguments": ["Text", "Int"]
+            "arguments": ["String", "Int"]
         },
         {
             "name": "reviews_aggregate_rating",
             "route": "/helper/aggregate_rating",
             "type": "inline",
             "return_value": "String",
-            "arguments": ["Text"]
+            "arguments": ["String"]
         }
     ],
     "api": [

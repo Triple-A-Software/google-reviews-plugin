@@ -86,6 +86,12 @@
                 <input id="new_label" type="text" placeholder="Label (optional)">
                 <button class="primary" id="add-place">Add</button>
             </div>
+            <p class="hint" style="margin:-8px 0 14px">
+                Need your Place ID? Open Google's
+                <a href="https://developers.google.com/maps/documentation/places/web-service/place-id" target="_blank" rel="noopener">Place ID Finder</a>,
+                search your business, and copy the ID (it looks like <code>ChIJ…</code>).
+                Requires <code>Places API (New)</code> enabled and billing on your Google Cloud project.
+            </p>
             <table id="places">
                 <thead><tr><th>Place</th><th>Rating</th><th>Fetched</th><th></th></tr></thead>
                 <tbody><tr><td colspan="4" class="muted">Loading…</td></tr></tbody>
@@ -214,13 +220,14 @@
             const label = document.getElementById("new_label").value.trim() || null;
             const status = document.getElementById("add-status");
             if (!place_id) { status.textContent = "Enter a Place ID."; return; }
-            e.target.disabled = true; status.textContent = "Adding…";
+            e.target.disabled = true; status.textContent = "Adding…"; status.style.color = "var(--ui-text-muted)";
             try {
                 const res = await fetch(api("/api/places"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ place_id, label }) }).then(r => r.json());
                 status.textContent = res.error ? ("Added, but fetch failed: " + res.error) : "Added.";
+                status.style.color = res.error ? "var(--ui-error)" : "var(--ui-success)";
                 document.getElementById("new_place_id").value = ""; document.getElementById("new_label").value = "";
                 await refresh();
-            } catch { status.textContent = "Failed to add."; }
+            } catch { status.textContent = "Failed to add."; status.style.color = "var(--ui-error)"; }
             e.target.disabled = false;
         });
 

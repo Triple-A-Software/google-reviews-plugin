@@ -37,6 +37,36 @@ stars in Google search results, too.
 5. *(Optional)* add `{{ reviews_aggregate_rating("YOUR_PLACE_ID") }}` to your
    page for rich-result star markup.
 
+## Finding your Place ID
+
+A Place ID is Google's stable identifier for a business, and it looks like
+`ChIJN1t_tDeuEmsRUsoyG83frY4` — **not** a Maps URL, a name, or a phone number.
+
+- **Easiest:** open Google's
+  [Place ID Finder](https://developers.google.com/maps/documentation/places/web-service/place-id),
+  type your business name, and copy the ID from the info window.
+- **From a Maps link:** a shared Google Maps URL (e.g. `maps.app.goo.gl/…` or a
+  `.../place/...` link) is **not** a Place ID — paste it into the finder above to
+  resolve the real ID first.
+
+Then paste it into the **Places** box in the admin and click **Add**.
+
+## Troubleshooting
+
+**I added a place but no rating/reviews appear.** When you click **Add**, the
+plugin fetches from Google right away and shows the result under the Places table.
+If it failed, that line reads *"Added, but fetch failed: …"* — the reason tells you
+what to fix:
+
+| Message | Cause | Fix |
+|---|---|---|
+| *No API key configured…* | No key saved yet | **Settings** → paste your key → **Save**, then **Refresh** the place |
+| *403 … SERVICE_DISABLED* / *has not been used…* | The **Places API (New)** isn't enabled (the older "Places API" is a different API) | Enable **Places API (New)** and **billing** in Google Cloud |
+| *403 … referer restrictions* | The API key is restricted to HTTP referrers | The plugin calls Google server-side — set the key to **no restriction** or an **IP** restriction |
+| *404 … NOT_FOUND* | The Place ID is wrong (often a Maps URL was pasted) | Get the real ID via the [Place ID Finder](#finding-your-place-id) |
+
+After fixing the key or ID, click **Refresh** on the place (or **Refresh all**).
+
 ## Good to know
 
 - **Google shows up to 5 reviews per place** through the Places API — that's a
