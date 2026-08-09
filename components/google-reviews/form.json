@@ -1,0 +1,25 @@
+{
+    "$schema": "https://neleto.io/schemas/main/form_schema.json",
+    "label": {
+        "de": "Google-Bewertungen",
+        "en": "Google Reviews"
+    },
+    "properties": [
+        {
+            "id": "place_id",
+            "type": "text",
+            "label": {
+                "de": "Google Place ID",
+                "en": "Google Place ID"
+            }
+        },
+        {
+            "id": "count",
+            "type": "number",
+            "label": {
+                "de": "Anzahl Bewertungen (max. 5)",
+                "en": "Number of reviews (max 5)"
+            }
+        }
+    ]
+}

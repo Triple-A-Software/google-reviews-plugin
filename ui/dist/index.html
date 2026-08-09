@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Google Reviews</title>
+    <style>
+        :root {
+            --ui-bg: #ffffff; --ui-bg-muted: #f9fafb; --ui-bg-elevated: #f3f4f6;
+            --ui-text: #111827; --ui-text-muted: #6b7280; --ui-text-highlighted: #030712;
+            --ui-border: #e5e7eb; --ui-primary: #00b8db; --ui-success: #16a34a;
+            --ui-warning: #d97706; --ui-error: #dc2626; --ui-info: #2563eb;
+        }
+        :root.dark {
+            --ui-bg: #111827; --ui-bg-muted: #0b1220; --ui-bg-elevated: #1f2937;
+            --ui-text: #f9fafb; --ui-text-muted: #9ca3af; --ui-text-highlighted: #ffffff;
+            --ui-border: #1f2937;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; margin: 0; color: var(--ui-text); background: var(--ui-bg-muted); }
+        header { padding: 20px 24px; background: var(--ui-bg); border-bottom: 1px solid var(--ui-border); display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        h1 { font-size: 18px; margin: 0; }
+        h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--ui-text-muted); margin: 24px 0 8px; }
+        main { padding: 24px; max-width: 1040px; margin: 0 auto; }
+        .cards { display: flex; gap: 16px; flex-wrap: wrap; }
+        .card { background: var(--ui-bg); border: 1px solid var(--ui-border); border-radius: 12px; padding: 16px 20px; min-width: 120px; }
+        .card .n { font-size: 26px; font-weight: 700; }
+        .card .l { font-size: 12px; color: var(--ui-text-muted); }
+        .panel { background: var(--ui-bg); border: 1px solid var(--ui-border); border-radius: 12px; padding: 16px 20px; }
+        table { width: 100%; border-collapse: collapse; background: var(--ui-bg); border: 1px solid var(--ui-border); border-radius: 12px; overflow: hidden; }
+        th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--ui-border); font-size: 14px; vertical-align: top; }
+        th { color: var(--ui-text-muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+        tr:last-child td { border-bottom: none; }
+        .stars { color: #fbbc04; white-space: nowrap; }
+        .muted { color: var(--ui-text-muted); }
+        .rowtext { max-width: 380px; white-space: pre-wrap; word-break: break-word; }
+        .hidden-row td { opacity: .55; }
+        button { font: inherit; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--ui-border); background: var(--ui-bg); color: var(--ui-text); cursor: pointer; font-size: 13px; }
+        button.primary { background: var(--ui-primary); color: #1a1a1a; border-color: transparent; font-weight: 600; }
+        button.danger { color: var(--ui-error); }
+        button:disabled { opacity: .5; cursor: default; }
+        input, select { font: inherit; padding: 8px 10px; border: 1px solid var(--ui-border); border-radius: 8px; background: var(--ui-bg); color: var(--ui-text); }
+        .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 14px; max-width: 420px; }
+        .field label { font-size: 13px; font-weight: 600; }
+        .hint { font-size: 12px; color: var(--ui-text-muted); }
+        .inline { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .grid2 { display: flex; gap: 16px; flex-wrap: wrap; }
+        .row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        code { background: var(--ui-bg-elevated); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+    </style>
+    <script>
+        (function () {
+            var root = document.documentElement;
+            try {
+                var pdoc = window.parent.document;
+                if (pdoc.documentElement.classList.contains("dark")) root.classList.add("dark");
+                var tokens = ["--ui-bg", "--ui-bg-muted", "--ui-bg-elevated", "--ui-text",
+                    "--ui-text-muted", "--ui-text-highlighted", "--ui-border", "--ui-primary",
+                    "--ui-success", "--ui-warning", "--ui-error", "--ui-info"];
+                var probe = pdoc.createElement("span");
+                probe.style.cssText = "position:absolute;opacity:0;pointer-events:none";
+                pdoc.body.appendChild(probe);
+                var sentinel = "rgb(1, 2, 3)";
+                tokens.forEach(function (t) {
+                    probe.style.color = "var(" + t + ", " + sentinel + ")";
+                    var c = getComputedStyle(probe).color;
+                    if (c && c !== sentinel) root.style.setProperty(t, c);
+                });
+                pdoc.body.removeChild(probe);
+            } catch (e) { /* isolated / cross-origin: fallbacks apply */ }
+        })();
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Google Reviews</h1>
+        <div class="row" style="margin-left:auto"><button class="primary" id="refresh-all">Refresh all</button></div>
+    </header>
+    <main>
+        <div class="cards" id="cards"></div>
+
+        <h2>Places</h2>
+        <div class="panel">
+            <div class="inline" style="margin-bottom:14px">
+                <input id="new_place_id" type="text" placeholder="Google Place ID (e.g. ChIJ…)" style="flex:1;min-width:220px">
+                <input id="new_label" type="text" placeholder="Label (optional)">
+                <button class="primary" id="add-place">Add</button>
+            </div>
+            <table id="places">
+                <thead><tr><th>Place</th><th>Rating</th><th>Fetched</th><th></th></tr></thead>
+                <tbody><tr><td colspan="4" class="muted">Loading…</td></tr></tbody>
+            </table>
+            <p class="hint" id="add-status"></p>
+        </div>
+
+        <h2>Reviews</h2>
+        <div class="row" style="margin-bottom:8px">
+            <label class="hint" for="place-filter">Place</label>
+            <select id="place-filter"><option value="">All places</option></select>
+        </div>
+        <table id="reviews">
+            <thead><tr><th>Author</th><th>Review</th><th>Place</th><th></th></tr></thead>
+            <tbody><tr><td colspan="4" class="muted">Loading…</td></tr></tbody>
+        </table>
+
+        <h2>Settings</h2>
+        <div class="panel">
+            <div class="field">
+                <label for="api_key">Google Places API key</label>
+                <input id="api_key" type="text" autocomplete="off">
+                <span class="hint">Needs the <code>Places API (New)</code> enabled. Stored here, never in the CMS.</span>
+            </div>
+            <div class="grid2">
+                <div class="field" style="max-width:150px">
+                    <label for="default_count">Default count</label>
+                    <input id="default_count" type="number" min="1" max="5" value="5">
+                </div>
+                <div class="field" style="max-width:150px">
+                    <label for="min_rating">Min. stars</label>
+                    <input id="min_rating" type="number" min="1" max="5" value="1">
+                </div>
+                <div class="field" style="max-width:180px">
+                    <label for="ttl_minutes">Cache TTL (minutes)</label>
+                    <input id="ttl_minutes" type="number" min="5" value="720">
+                </div>
+            </div>
+            <div class="row"><button class="primary" id="save-settings">Save settings</button><span id="settings-status" class="hint"></span></div>
+        </div>
+
+        <h2>Usage</h2>
+        <div class="panel hint">
+            Drop the <strong>Google Reviews</strong> component on a page, or add to a template:
+            <br><code>{{ google_reviews("PLACE_ID", 5) }}</code> for the block,
+            <code>{{ reviews_aggregate_rating("PLACE_ID") }}</code> for rich-result markup.
+        </div>
+    </main>
+
+    <script>
+        const base = location.pathname.replace(/\/ui\/?(index\.html)?$/, "");
+        const api = (p) => base + "/api" + p;
+        const esc = (s) => (s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+        const stars = (n) => "★".repeat(Math.max(0, Math.min(5, n))) + "☆".repeat(5 - Math.max(0, Math.min(5, n)));
+        const fmt = (s) => s ? new Date(s).toLocaleString() : "never";
+
+        async function loadStats() {
+            const s = await fetch(api("/api/stats")).then(r => r.json());
+            document.getElementById("cards").innerHTML = [
+                ["Avg. rating", s.avg_rating != null ? s.avg_rating.toFixed(1) : "–", "var(--ui-text)"],
+                ["Total ratings", s.total_ratings, "var(--ui-text)"],
+                ["Places", s.places, "var(--ui-text)"],
+                ["Hidden", s.hidden, "var(--ui-warning)"],
+            ].map(([l, n, c]) => `<div class="card"><div class="n" style="color:${c}">${n}</div><div class="l">${l}</div></div>`).join("");
+        }
+
+        async function loadPlaces() {
+            const places = await fetch(api("/api/places")).then(r => r.json());
+            const tb = document.querySelector("#places tbody");
+            if (!places.length) { tb.innerHTML = `<tr><td colspan="4" class="muted">No places yet — add a Place ID above.</td></tr>`; }
+            else tb.innerHTML = places.map(p => `<tr>
+                <td><div>${esc(p.label) || "<span class='muted'>(no label)</span>"}</div><div class="hint">${esc(p.place_id)}</div></td>
+                <td>${p.rating != null ? `<span class="stars">${stars(Math.round(p.rating))}</span> ${p.rating.toFixed(1)} <span class="hint">(${p.total ?? 0})</span>` : '<span class="muted">—</span>'}</td>
+                <td class="hint">${fmt(p.fetched_at)}</td>
+                <td><div class="row"><button data-refresh="${esc(p.place_id)}">Refresh</button><button class="danger" data-delete="${esc(p.place_id)}">Delete</button></div></td>
+            </tr>`).join("");
+            // place filter
+            const sel = document.getElementById("place-filter");
+            const cur = sel.value;
+            sel.innerHTML = `<option value="">All places</option>` + places.map(p => `<option value="${esc(p.place_id)}">${esc(p.label) || esc(p.place_id)}</option>`).join("");
+            sel.value = cur;
+            tb.querySelectorAll("button[data-refresh]").forEach(b => b.addEventListener("click", () => refreshPlace(b.dataset.refresh)));
+            tb.querySelectorAll("button[data-delete]").forEach(b => b.addEventListener("click", () => deletePlace(b.dataset.delete)));
+        }
+
+        async function loadReviews() {
+            const pid = document.getElementById("place-filter").value;
+            const q = pid ? "?place_id=" + encodeURIComponent(pid) : "";
+            const rows = await fetch(api("/api/reviews" + q)).then(r => r.json());
+            const tb = document.querySelector("#reviews tbody");
+            if (!rows.length) { tb.innerHTML = `<tr><td colspan="4" class="muted">No reviews cached yet.</td></tr>`; return; }
+            tb.innerHTML = rows.map(r => `<tr class="${r.hidden ? "hidden-row" : ""}">
+                <td><div>${esc(r.author)}</div><div class="stars">${stars(r.rating)}</div><div class="hint">${esc(r.relative_time)}</div></td>
+                <td><div class="rowtext">${esc(r.text) || "<span class='muted'>(no text)</span>"}</div></td>
+                <td class="hint">${esc(r.place_id)}</td>
+                <td><button data-id="${r.id}" data-hidden="${r.hidden ? 0 : 1}">${r.hidden ? "Show" : "Hide"}</button></td>
+            </tr>`).join("");
+            tb.querySelectorAll("button[data-id]").forEach(b => b.addEventListener("click", () => moderate(Number(b.dataset.id), b.dataset.hidden === "1")));
+        }
+
+        async function refresh() { await Promise.all([loadStats(), loadPlaces(), loadReviews()]); }
+
+        async function refreshPlace(place_id) {
+            await fetch(api("/api/reviews/refresh"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ place_id }) });
+            await refresh();
+        }
+        async function deletePlace(place_id) {
+            if (!confirm("Remove this place and its cached reviews?")) return;
+            await fetch(api("/api/places"), { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ place_id }) });
+            await refresh();
+        }
+        async function moderate(id, hidden) {
+            await fetch(api("/api/reviews/moderate"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, hidden }) });
+            await refresh();
+        }
+
+        document.getElementById("refresh-all").addEventListener("click", async (e) => {
+            e.target.disabled = true; e.target.textContent = "Refreshing…";
+            try { const r = await fetch(api("/api/reviews/refresh"), { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" }).then(r => r.json()); await refresh(); e.target.textContent = `Refreshed ${r.refreshed}`; }
+            catch { e.target.textContent = "Failed"; }
+            setTimeout(() => { e.target.disabled = false; e.target.textContent = "Refresh all"; }, 2000);
+        });
+
+        document.getElementById("add-place").addEventListener("click", async (e) => {
+            const place_id = document.getElementById("new_place_id").value.trim();
+            const label = document.getElementById("new_label").value.trim() || null;
+            const status = document.getElementById("add-status");
+            if (!place_id) { status.textContent = "Enter a Place ID."; return; }
+            e.target.disabled = true; status.textContent = "Adding…";
+            try {
+                const res = await fetch(api("/api/places"), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ place_id, label }) }).then(r => r.json());
+                status.textContent = res.error ? ("Added, but fetch failed: " + res.error) : "Added.";
+                document.getElementById("new_place_id").value = ""; document.getElementById("new_label").value = "";
+                await refresh();
+            } catch { status.textContent = "Failed to add."; }
+            e.target.disabled = false;
+        });
+
+        document.getElementById("place-filter").addEventListener("change", loadReviews);
+
+        async function loadSettings() {
+            const s = await fetch(api("/api/settings")).then(r => r.json());
+            document.getElementById("api_key").value = s.api_key || "";
+            document.getElementById("default_count").value = s.default_count;
+            document.getElementById("min_rating").value = s.min_rating;
+            document.getElementById("ttl_minutes").value = s.ttl_minutes;
+        }
+        document.getElementById("save-settings").addEventListener("click", async (e) => {
+            const status = document.getElementById("settings-status");
+            e.target.disabled = true; status.textContent = "Saving…";
+            const body = {
+                api_key: document.getElementById("api_key").value.trim() || null,
+                default_count: Number(document.getElementById("default_count").value) || 5,
+                min_rating: Number(document.getElementById("min_rating").value) || 1,
+                ttl_minutes: Number(document.getElementById("ttl_minutes").value) || 720,
+            };
+            try { await fetch(api("/api/settings"), { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }); status.textContent = "Saved."; }
+            catch { status.textContent = "Failed."; }
+            e.target.disabled = false;
+            setTimeout(() => { status.textContent = ""; }, 2500);
+        });
+
+        refresh();
+        loadSettings();
+    </script>
+</body>
+</html>

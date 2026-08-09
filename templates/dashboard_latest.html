@@ -1,0 +1,28 @@
+{% include "theme_head.html" %}
+<style>
+    html, body { background: var(--ui-bg); margin: 0; }
+    .gr-card { font-family: system-ui, sans-serif; padding: 16px; color: var(--ui-text); }
+    .gr-list { margin: 0; padding: 0; list-style: none; font-size: 13px; }
+    .gr-list li { padding: 7px 0; border-top: 1px solid var(--ui-border); }
+    .gr-list li:first-child { border-top: 0; }
+    .gr-row { display: flex; justify-content: space-between; gap: 8px; }
+    .gr-author { font-weight: 600; }
+    .gr-stars { color: #fbbc04; }
+    .gr-time { color: var(--ui-text-muted); }
+    .gr-snippet { color: var(--ui-text-muted); margin-top: 2px; }
+</style>
+<div class="gr-card">
+    {% if reviews %}
+    <ul class="gr-list">
+        {% for r in reviews %}
+        <li>
+            <div class="gr-row"><span class="gr-author">{{ r.author }}</span><span class="gr-time">{{ r.time }}</span></div>
+            <div class="gr-stars">{{ r.stars }}</div>
+            {% if r.snippet %}<div class="gr-snippet">{{ r.snippet }}</div>{% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="gr-muted" style="color: var(--ui-text-muted);">No reviews fetched yet. Add a place and set your API key.</p>
+    {% endif %}
+</div>

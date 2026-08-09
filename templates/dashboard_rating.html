@@ -1,0 +1,18 @@
+{% include "theme_head.html" %}
+<style>
+    html, body { background: var(--ui-bg); margin: 0; }
+    .gr-card { font-family: system-ui, sans-serif; padding: 16px; color: var(--ui-text); }
+    .gr-row { display: flex; align-items: center; gap: 12px; }
+    .gr-score { font-size: 32px; font-weight: 700; }
+    .gr-stars { color: #fbbc04; font-size: 18px; letter-spacing: 1px; }
+    .gr-muted { color: var(--ui-text-muted); font-size: 13px; }
+</style>
+<div class="gr-card">
+    <div class="gr-row">
+        <span class="gr-score">{{ avg }}</span>
+        <div>
+            <div class="gr-stars">{{ stars }}</div>
+            <div class="gr-muted">{{ total }} ratings · {{ places }} place{{ "s" if places != 1 }}</div>
+        </div>
+    </div>
+</div>

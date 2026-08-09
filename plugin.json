@@ -1,0 +1,82 @@
+{
+    "$schema": "https://neleto.io/schemas/main/plugin_manifest_schema.json",
+    "name": "google-reviews",
+    "version": "1.0.0",
+    "bin": "./target/x86_64-unknown-linux-gnu/release/google-reviews",
+    "include_files": [
+        "ui/dist/**/*",
+        "target/x86_64-unknown-linux-gnu/release/google-reviews",
+        "templates/**/*",
+        "components/**/*"
+    ],
+    "ui": "/ui",
+    "components": "./components",
+    "helpers": [
+        {
+            "name": "google_reviews",
+            "route": "/helper/google_reviews",
+            "type": "inline",
+            "return_value": "String",
+            "arguments": ["Text", "Int"]
+        },
+        {
+            "name": "reviews_aggregate_rating",
+            "route": "/helper/aggregate_rating",
+            "type": "inline",
+            "return_value": "String",
+            "arguments": ["Text"]
+        }
+    ],
+    "api": [
+        {
+            "route": "/api/settings",
+            "allowed_roles": ["admin", "developer"]
+        },
+        {
+            "route": "/api/places",
+            "allowed_roles": ["admin", "developer"]
+        },
+        {
+            "route": "/api/reviews",
+            "allowed_roles": ["admin", "developer", "editor"]
+        },
+        {
+            "route": "/api/reviews/moderate",
+            "allowed_roles": ["admin", "developer", "editor"]
+        },
+        {
+            "route": "/api/reviews/refresh",
+            "allowed_roles": ["admin", "developer"]
+        },
+        {
+            "route": "/api/stats",
+            "allowed_roles": ["admin", "developer", "editor"]
+        }
+    ],
+    "dashboard_cards": [
+        {
+            "name": "rating-summary",
+            "route": "/dashboard/rating",
+            "label": {
+                "de": "Google-Bewertung",
+                "en": "Google Rating"
+            },
+            "description": {
+                "de": "Durchschnittsbewertung und Anzahl über alle Standorte",
+                "en": "Average rating and count across all places"
+            }
+        },
+        {
+            "name": "latest-reviews",
+            "route": "/dashboard/latest",
+            "label": {
+                "de": "Neueste Bewertungen",
+                "en": "Latest Reviews"
+            },
+            "description": {
+                "de": "Die zuletzt abgerufenen Google-Bewertungen",
+                "en": "The most recently fetched Google reviews"
+            }
+        }
+    ]
+}

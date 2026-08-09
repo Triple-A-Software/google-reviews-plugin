@@ -1,0 +1,5 @@
+/* The helper injects its own scoped styles (.gr-*); this file is intentionally
+   minimal so editors can override spacing around the block if they wish. */
+.gr {
+    margin: 24px 0;
+}
