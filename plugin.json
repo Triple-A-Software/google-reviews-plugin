@@ -1,7 +1,8 @@
 {
     "$schema": "https://neleto.io/schemas/main/plugin_manifest_schema.json",
     "name": "google-reviews",
-    "version": "1.0.1",
+    "version": "1.0.2",
+    "hero_image": "assets/hero.png",
     "bin": "./target/x86_64-unknown-linux-gnu/release/google-reviews",
     "include_files": [
         "ui/dist/**/*",
