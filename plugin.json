@@ -31,27 +31,27 @@
     "api": [
         {
             "route": "/api/settings",
-            "allowed_roles": ["admin", "developer"]
+            "allowed_permissions": ["settings.update"]
         },
         {
             "route": "/api/places",
-            "allowed_roles": ["admin", "developer"]
+            "allowed_permissions": ["settings.update"]
         },
         {
             "route": "/api/reviews",
-            "allowed_roles": ["admin", "developer", "editor"]
+            "allowed_permissions": ["page.update"]
         },
         {
             "route": "/api/reviews/moderate",
-            "allowed_roles": ["admin", "developer", "editor"]
+            "allowed_permissions": ["page.update"]
         },
         {
             "route": "/api/reviews/refresh",
-            "allowed_roles": ["admin", "developer"]
+            "allowed_permissions": ["settings.update"]
         },
         {
             "route": "/api/stats",
-            "allowed_roles": ["admin", "developer", "editor"]
+            "allowed_permissions": ["page.update"]
         }
     ],
     "dashboard_cards": [
